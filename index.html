@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Agriculture</title>
+    <style>
+        body {
+            background-image: url('../assets/background.jpg');
+            background-size: cover;
+            background-attachment: fixed;
+            background-repeat: no-repeat;
+            font-family: 'Arial', sans-serif;
+            color: #333;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .app-name {
+            text-align: center;
+            color: #ffffff;
+            font-size: 80px;
+        }
+
+        .getdata-button {
+            display: block;
+            margin: 20px auto;
+            padding: 20px 40px;
+            font-size: 1em;
+            color: #ffffff;
+            background-color: #228B22;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size:x-large;
+        }
+
+        .getdata-button:hover {
+            background-color: #61c461;
+            color: black;
+            font-weight: bold;
+        }
+
+        .cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            padding: 20px;
+            width: 100%;
+            max-width: 1200px;
+        }
+
+        .event {
+            background-color: rgba(255, 255, 255, 0.8);
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            text-align: center;
+            cursor: pointer;
+        }
+
+        .heading {
+            font-size: 1.2em;
+            font-weight: bold;
+            color: #006400;
+        }
+
+        .data {
+            font-size: 1em;
+            color: #333;
+            font-weight: bold; 
+        }
+
+        @media (max-width: 768px) {
+            .cards {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .app-name {
+                font-size: 1.5em;
+                padding: 15px;
+            }
+
+            .getdata-button {
+                font-size: 0.9em;
+                padding: 8px 16px;
+            }
+
+            .cards {
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .event {
+                width: 90%;
+            }
+        }
+
+        .video {
+            margin: 20px;
+            padding: 20px;
+            width: 100%;
+            max-width: 800px;
+            text-align: center;
+            border-radius: 5px;
+        }
+
+        .video iframe {
+            width: 100%;
+            height: 450px;
+            border: black;
+            border-radius: 5px;
+        }
+
+        .logo{
+            width: 200px;
+            height: 200px;
+        }
+
+    </style>
+</head>
+<body>
+
+    <img src="../assets/logo.png" alt="Logo" class="logo">
+
+    <div>
+        <h1 class="app-name">Farm Fusion</h1>
+    </div>
+
+    <button onclick="getData();" class="getdata-button">Get data</button>
+
+    <div class="cards">
+        <div class="event">
+            <p class="heading">Humidity</p>
+            <div class="data">
+                <p id="humidity"></p>
+            </div>
+        </div>
+        <div class="event">
+            <p class="heading">Weather</p>
+            <div class="data">
+                <p id="lightIntensity"></p>
+            </div>
+        </div>
+        <div class="event">
+            <p class="heading">Pressure</p>
+            <div class="data">
+                <p id="pressure"></p>
+            </div>
+        </div>
+        <div class="event">
+            <p class="heading">Soil Moisture Level</p>
+            <div class="data">
+                <p id="soilMoistureLevel"></p>
+            </div>
+        </div>
+        <div class="event">
+            <p class="heading">Temperature</p>
+            <div class="data">
+                <p id="temperature"></p>
+            </div>
+        </div>
+    </div>
+
+    <div class="video">
+        <iframe src="https://www.youtube.com/embed/c7Dzc_eWC1k" allowfullscreen></iframe>
+    </div>    
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.4/firebase-app.js";
+        const firebaseConfig = {
+            apiKey: "AIzaSyDxu3omBJ2A5X8D2UWXwNxwzJeema28VrE",
+            authDomain: "crop-4351e.firebaseapp.com",
+            databaseURL: "https://crop-4351e-default-rtdb.asia-southeast1.firebasedatabase.app",
+            projectId: "crop-4351e",
+            storageBucket: "crop-4351e.appspot.com",
+            messagingSenderId: "736547111370",
+            appId: "1:736547111370:web:786406c1288d6593e14f33"
+        };
+
+        const app = initializeApp(firebaseConfig);
+
+        import { getDatabase, ref, child, get } from "https://www.gstatic.com/firebasejs/10.12.4/firebase-database.js";
+
+        const db = getDatabase();
+
+        let dataList = [];
+
+        function getData() {
+            const dbRef = ref(db);
+            get(child(dbRef, 'CIT')).then((snapshot) => {
+                dataList = [];
+                snapshot.forEach(childSnapshot => {
+                    dataList.push(childSnapshot.val());
+                });
+                displayData();
+                console.log(dataList);
+            }).catch((error) => {
+                console.error(error);
+            });
+        }
+
+        function displayData() {
+            if (dataList.length > 0) {
+                document.getElementById('humidity').textContent = (dataList[0] || 'N/A') + '%';
+                document.getElementById('lightIntensity').textContent = (dataList[1] === 1) ? 'Cloudy' : 'Sunny';
+                document.getElementById('pressure').textContent = (dataList[2] || 'N/A') + ' Pa';
+                document.getElementById('soilMoistureLevel').textContent = (dataList[3] === 1) ? 'High' : 'Low';
+                document.getElementById('temperature').textContent = (dataList[4] || 'N/A') + ' °C';
+            } else {
+                document.getElementById('humidity').textContent = 'No data';
+                document.getElementById('lightIntensity').textContent = 'No data';
+                document.getElementById('pressure').textContent = 'No data';
+                document.getElementById('soilMoistureLevel').textContent = 'No data';
+                document.getElementById('temperature').textContent = 'No data';
+            }
+        }
+
+        window.getData = getData;
+    </script>
+</body>
+</html>
